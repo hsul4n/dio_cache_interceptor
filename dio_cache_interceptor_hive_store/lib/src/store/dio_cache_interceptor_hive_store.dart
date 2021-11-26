@@ -5,13 +5,15 @@ import 'package:hive/hive.dart';
 ///
 class HiveCacheStore implements CacheStore {
   final String hiveBoxName;
+  final HiveCipher? hiveEncryptionCipher;
 
   Box<CacheResponse>? _box;
 
   /// Initialize cache store by giving Hive a home directory.
   /// [directory] can be null only on web platform or if you already use Hive
   /// in your app.
-  HiveCacheStore(String? directory, {this.hiveBoxName = 'dio_cache'}) {
+  HiveCacheStore(String? directory,
+      {this.hiveBoxName = 'dio_cache', this.hiveEncryptionCipher}) {
     if (directory != null) {
       Hive.init(directory);
     }
@@ -105,7 +107,10 @@ class HiveCacheStore implements CacheStore {
   }
 
   Future<Box<CacheResponse>> _openBox() async {
-    _box ??= await Hive.openBox<CacheResponse>(hiveBoxName);
+    _box ??= await Hive.openBox<CacheResponse>(
+      hiveBoxName,
+      encryptionCipher: hiveEncryptionCipher,
+    );
     return Future.value(_box);
   }
 }
